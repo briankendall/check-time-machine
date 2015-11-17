@@ -570,6 +570,8 @@ def queryFixExcluded(excluded):
                "listed here that you do want excluded, consider modifying the\n"
                "'userIgnore' variable in this script, or individually adding\n"
                "them yourself using 'tmutil removeexclusion path-to-file'.\n"
+               "\n(Basically, if you don't know what this all means or are\n"
+               "unsure what to do, you probably do NOT want to do this.)\n\n"
                "Proceed? [y/N]")
         response = raw_input()
     
