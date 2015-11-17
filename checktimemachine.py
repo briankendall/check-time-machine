@@ -341,7 +341,7 @@ def fileData(volumePath, path, isSrc=False):
             percent = 0
         
         if percent != lastPercent[0]:
-            printOverlapping("...%s%% complete" % percent)
+            printOverlapping("...%s%%-ish complete" % percent)
             lastPercent[0] = percent
     
     if isSrc:
@@ -473,7 +473,10 @@ def determinedExcluded(files):
     excluded = []
     included = []
     
-    for file in files:
+    print "Determining which files are marked as excluded..."
+    lastPercent = 0
+    
+    for i, file in enumerate(files):
         try:
             exclusion = fileIsIntentionallyExcluded(file)
         except tmutilError:
@@ -484,6 +487,12 @@ def determinedExcluded(files):
             excluded.append(file)
         else:
             included.append(file)
+        
+        percent = ((i+1)*100) // len(files)
+        
+        if percent != lastPercent:
+            printOverlapping("...%s%% complete" % percent)
+            lastPercent = percent
     
     return excluded, included
 
@@ -554,7 +563,14 @@ def queryFixExcluded(excluded):
         return
     
     while True:
-        print "\nAdd excluded files? [y/n]"
+        print ("\nAdd excluded files?\n"
+               "NOTE: many files that are marked as excluded really are meant\n"
+               "to be excluded. This tool is a rather blunt one and will only\n"
+               "add all of the excluded files in one batch. If there are files\n"
+               "listed here that you do want excluded, consider modifying the\n"
+               "'userIgnore' variable in this script, or individually adding\n"
+               "them yourself using 'tmutil removeexclusion path-to-file'.\n"
+               "Proceed? [y/n]")
         response = raw_input()
     
         if response.lower() == 'y':
