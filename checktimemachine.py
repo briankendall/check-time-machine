@@ -570,7 +570,7 @@ def queryFixExcluded(excluded):
                "listed here that you do want excluded, consider modifying the\n"
                "'userIgnore' variable in this script, or individually adding\n"
                "them yourself using 'tmutil removeexclusion path-to-file'.\n"
-               "Proceed? [y/n]")
+               "Proceed? [y/N]")
         response = raw_input()
     
         if response.lower() == 'y':
@@ -578,7 +578,7 @@ def queryFixExcluded(excluded):
                 addToTimeMachineBackup(file)
             
             break
-        elif response.lower() == 'n':
+        elif response.lower() == 'n' or len(response) == 0:
             break
 
 def queryFixIncluded(included):
@@ -590,10 +590,10 @@ def queryFixIncluded(included):
                " 1. touching the files\n"
                " 2. touching their containing directories\n"
                " 3. changing their name and then changing it back again\n"
-               "...in the hopes that it'll actually do something helpful? [y/n]")
+               "...in the hopes that it'll actually do something helpful? [Y/n]")
         response = raw_input()
     
-        if response.lower() == 'y':
+        if response.lower() == 'y' or len(response) == '':
             for file in included:
                 tryToFixMissingFile(file)
             
