@@ -11,7 +11,7 @@ If a directory is specified, will scan just that directory and compare to its la
 
 Any missing files will be presented in two lists:
   1. Non-excluded files that are missing: files that are not marked by Time Machine as being excluded but are nevertheless not in your Time Machine backup. This could be because they simply haven't been backed up yet, or it could be because Time Machine has been very naughty and skipped over these files for no good reason.
-  2. Excluded files: files that are marked by Time Machine as being excluded, either by sticky exclusion of fixed-path exclusion. (See ```man tmutil``` for more information.)
+  2. Excluded files: files that are marked by Time Machine as being excluded, either by sticky exclusion or fixed-path exclusion. (See ```man tmutil``` for more information.)
 
 Will then offer to add excluded files to the Time Machine backup, and to "wiggle" the files the non-excluded files that are not backed up. And by wiggle, I mean it will ```touch``` the file, ```touch``` its containing directory, rename the file, and then rename it back to its original name. Note: this is not guaranteed to accomplish anything, but some users have reported that it helps.
 
