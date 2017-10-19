@@ -17,14 +17,14 @@ Will then offer to add excluded files to the Time Machine backup, and to "wiggle
 
 ## Important notes!
 
-This script will automatically ignore a wide variety of files and folders that, as far as I can tell, are not supposed to be included in a Time Machine backup. This list was compiled by looking in StdExclusions.plist, and then running the script and seeing what miscellaneous files it finds that I don't care about.
+This script will automatically ignore a wide variety of files and folders that, as far as I can tell, are not supposed to be included in a Time Machine backup. This list was created by running the script and seeing what miscellaneous files it finds that I don't care about.
 
 At the top of the script are several lists. Before running this script, you should consider reviewing them and adding any paths you want ignored or remove any paths that are important to you. They are:
-  1. ```excludePaths```: Excluded paths from StdExclusions.plist. You almost certainly want to keep this one as it is.
-  2. ```excludeUserPaths```: Excluded user-level paths from StdExclusions.plist. You almost certainly want to keep this one as it is, too.
-  3. ```excludeDirectories```: Directories that have sticky exclusion that I'm pretty sure are safe to ignore.
-  4. ```excludeFiles```: Files that have sticky exclusion that I'm also pretty sure are safe to ignore.
-  5. ```excludeExtensions```: List of extensions that will be ignored. Can apply to any file or folder.
-  6. ```userIgnore```: Files and folders that I personally wanted to ignore but you may feel differently about it. Definitely should review this one.
+  1. ```excludeDirectories```: Directories that have sticky exclusion that I'm pretty sure are safe to ignore.
+  2. ```excludeFiles```: Files that have sticky exclusion that I'm also pretty sure are safe to ignore.
+  3. ```excludeExtensions```: List of extensions that will be ignored. Can apply to any file or folder.
+  4. ```userIgnore```: Files and folders that I personally wanted to ignore but you may feel differently about it. Definitely should review this one.
 
 Please pay close attention to the comments for each of these variables, as they describe what format the paths have to be in and how they are applied.
+
+The script will also ignore anything that would already by excluded by Time Machine based on the contents of the StdExclusions.plist file in the System folder.

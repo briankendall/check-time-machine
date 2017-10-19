@@ -7,85 +7,7 @@ from ast import literal_eval
 import sys
 import time
 import uuid
-
-excludePaths = [# Excluded paths from StdExclusions.plist, relative to the root of their volume:
-                ".Spotlight-V100",
-                ".DocumentRevisions-V100",
-                ".MobileBackups",
-                "MobileBackups.trash",
-                ".MobileBackups.trash",
-                ".Spotlight-V100",
-                ".TemporaryItems",
-                ".Trashes",
-                ".com.apple.backupd.mvlist.plist",
-                ".fseventsd",
-                ".hotfiles.btree",
-                "Backups.backupdb",
-                "Desktop DB",
-                "Desktop DF",
-                "Network/Servers",
-                "Library/Updates",
-                "Previous Systems",
-                "Users/Shared/SC Info",
-                "Users/Guest",
-                "dev",
-                "home",
-                "net",
-                "private/var/db/com.apple.backupd.backupVerification",
-                "private/var/db/efw_cache",
-                "private/var/db/Spotlight",
-                "private/var/db/Spotlight-V100",
-                "private/var/db/systemstats",
-                "private/var/lib/postfix/greylist.db",
-                "Volumes",
-                "Network",
-                "automount",
-                ".vol",
-                "tmp",
-                "cores",
-                "private/tmp",
-                "private/Network",
-                "private/tftpboot",
-                "private/var/automount",
-                "private/var/folders",
-                "private/var/run",
-                "private/var/tmp",
-                "private/var/vm",
-                "private/var/db/dhcpclient",
-                "private/var/db/fseventsd",
-                "Library/Caches",
-                "Library/Logs",
-                "System/Library/Caches",
-                "System/Library/Extensions/Caches",
-                "private/var/log",
-                "private/var/spool/cups",
-                "private/var/spool/fax",
-                "private/var/spool/uucp",
-                
-                # Private system paths that are excluded but not in StdExclusions.plist
-                "private/var/db/dyld",]
-
-# (From StdExclusions.plist)
-# standard user paths we want to skip for each user (subpath relative to root of home directory)
-excludeUserPaths = ["Library/Application Support/SyncServices/data.version",
-                "Library/Application Support/Ubiquity",
-                "Library/Caches",
-                "Library/Logs",
-                "Library/Mail/Envelope Index",
-                "Library/Mail/Envelope Index-journal",
-                "Library/Mail/AvailableFeeds",
-                "Library/Mail/Metadata/BackingStoreUpdateJournal",
-                "Library/Mail/V2/MailData/Envelope Index",
-                "Library/Mail/V2/MailData/Envelope Index-journal",
-                "Library/Mail/V2/MailData/AvailableFeeds",
-                "Library/Mail/V2/MailData/BackingStoreUpdateJournal",
-                "Library/Mail/V2/MailData/Envelope Index-shm",
-                "Library/Mail/V2/MailData/Envelope Index-wal",
-                "Library/Mirrors",
-                "Library/PubSub/Database",
-                "Library/PubSub/Downloads",
-                "Library/PubSub/Feeds",
-                "Library/Safari/Icons.db"]
+import plistlib
 
 # Directories that have "sticky exclusions".
 # You may want to review these and make sure you truly don't want
@@ -178,6 +100,9 @@ userIgnore = ["/Photos Library.photoslibrary/database",
               "Vivaldi/Default/History",
               "Vivaldi/Default/History-journal",]
 
+excludePaths = []
+excludeUserPaths = []
+
 class myError(Exception):
     pass
 
@@ -187,7 +112,7 @@ class tmutilError(myError):
 class pathError(myError):
     pass
     
-class missingFileError(myError):
+class fileIOError(myError):
     pass
 
 def getSystemVolume():
@@ -319,9 +244,9 @@ def fileData(volumePath, path, isSrc=False):
     
     if not os.path.exists(os.path.join(volumePath, path)):
         if isSrc:
-            raise missingFileError('Error: "%s" does not exist on disk. Cannot continue!' % path)
+            raise fileIOError('Error: "%s" does not exist on disk. Cannot continue!' % path)
         else:
-            raise missingFileError('Error: "%s" does not exist in Time Machine backup. Cannot continue!' % path)
+            raise fileIOError('Error: "%s" does not exist in Time Machine backup. Cannot continue!' % path)
     
     def determineInHomeDir(path):
         if path.startswith('Users/'):
@@ -603,6 +528,26 @@ def queryFixIncluded(included):
         elif response.lower() == 'n':
             break
 
+excludePaths = []
+excludeUserPaths = []
+
+
+def readStdExclusions():
+    global excludePaths, excludeUserPaths
+    
+    def stripLeadingSlash(path):
+        if path.startswith('/'):
+            return path[1:]
+        else:
+            return path
+    
+    excl = plistlib.readPlist('/System/Library/CoreServices/backupd.bundle/Contents/Resources/StdExclusions.plist')
+    excludePaths = [stripLeadingSlash(path) for path in excl['PathsExcluded'] + excl['ContentsExcluded'] + excl['FileContentsExcluded']]
+    excludeUserPaths = [stripLeadingSlash(path) for path in excl['UserPathsExcluded']]
+
+def initialize():
+    readStdExclusions()
+
 if __name__ == '__main__':
     if os.geteuid() != 0:
         print "This script must be run as root"
@@ -611,6 +556,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         print "Usage: python %s [path to directory]" % sys.argv[0]
         exit(1)
+    
+    initialize()
     
     try:
         if len(sys.argv) == 2:
